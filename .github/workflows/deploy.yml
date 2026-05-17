@@ -23,7 +23,13 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run basic test
-        run: python -c "from app import app; print('App imported successfully')"
+        run: python -c "from app import app; print('App imported successfully')" > test-report.txt 2>&1
+
+      - name: Save test report as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: test-report.txt
 
   docker:
     name: Docker Build & Push
@@ -42,6 +48,18 @@ jobs:
       - name: Push image to Docker Hub
         run: docker push ${{ secrets.DOCKER_USERNAME }}/my-app:latest
 
+      - name: Save Docker build info as artifact
+        run: |
+          echo "Image: ${{ secrets.DOCKER_USERNAME }}/my-app:latest" > docker-info.txt
+          echo "Build time: $(date)" >> docker-info.txt
+          echo "Commit: ${{ github.sha }}" >> docker-info.txt
+
+      - name: Upload Docker info artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-build-info
+          path: docker-info.txt
+
   deploy:
     name: Deploy to AWS EC2
     runs-on: ubuntu-latest
@@ -58,3 +76,17 @@ jobs:
             docker stop my-app || true
             docker rm my-app || true
             docker run -d --name my-app -p 80:5000 ${{ secrets.DOCKER_USERNAME }}/my-app:latest
+
+      - name: Save deployment info as artifact
+        run: |
+          echo "Deployed to: ${{ secrets.EC2_HOST }}" > deploy-info.txt
+          echo "Deploy time: $(date)" >> deploy-info.txt
+          echo "Commit SHA: ${{ github.sha }}" >> deploy-info.txt
+          echo "Branch: ${{ github.ref_name }}" >> deploy-info.txt
+
+      - name: Upload deployment artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-info
+          path: deploy-info.txt
+          retention-days: 30
