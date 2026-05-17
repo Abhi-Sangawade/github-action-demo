@@ -1,13 +1,16 @@
-FROM python:3.11-slim
+FROM node:20-alpine AS build
 
 WORKDIR /app
+COPY package.json .
+RUN npm install
+COPY . .
+RUN npm run build
 
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-
-COPY app.py .
-COPY ai_agent.py .
-
+FROM node:20-alpine AS runtime
+WORKDIR /app
+COPY package.json .
+RUN npm install --production
+COPY --from=build /app/dist ./dist
+COPY server.js .
 EXPOSE 5000
-
-CMD ["python", "app.py"]
+CMD ["node", "server.js"]
