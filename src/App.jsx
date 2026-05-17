@@ -8,25 +8,32 @@ const buildInfo = {
 };
 
 const examples = {
-  react: `import React from 'react';
+  react: `// React example - simple portfolio card
+// Docs: https://reactjs.org/docs/getting-started.html
+import React from 'react';
 
 function PortfolioCard() {
   return <div className="card">React portfolio powered by modern UI.</div>;
 }
 
 export default PortfolioCard;`,
-  angular: `import { Component } from '@angular/core';
+  angular: `// Angular example - minimal component
+// Docs: https://angular.io/docs
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-portfolio',
   template: '<div class="card">Angular portfolio component</div>'
 })
 export class PortfolioComponent {}`,
-  javascript: `const cards = document.querySelectorAll('.card');
+  javascript: `// Plain JavaScript example - add interactivity
+// Reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript
+const cards = document.querySelectorAll('.card');
 
 cards.forEach(card => {
   card.addEventListener('click', () => {
     console.log('Portfolio card clicked');
+    card.classList.toggle('active');
   });
 });`,
 };
